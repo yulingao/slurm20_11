@@ -859,7 +859,7 @@ static int _find_new_switches(switch_data **switch_table, int record_count)
 {
 	switch_data **temp_record_table = xmalloc( 
 		sizeof(struct switch_data*) * switch_data_cnt);
-	int i, j, temp_record_count = 0, old_record_count = record_count;
+	int i, j = 0, temp_record_count = 0, old_record_count = record_count;
 	switch_data *switch_ptr;
 
 	// loop through all of the switches with coordinates

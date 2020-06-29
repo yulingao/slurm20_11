@@ -973,7 +973,7 @@ static int _schedule(uint32_t job_limit)
 	uint32_t job_depth = 0, array_task_id;
 	job_queue_rec_t *job_queue_rec;
 	job_record_t *job_ptr = NULL;
-	part_record_t *part_ptr, **failed_parts = NULL, *skip_part_ptr = NULL;
+	part_record_t *part_ptr = NULL, **failed_parts = NULL, *skip_part_ptr = NULL;
 	struct slurmctld_resv **failed_resv = NULL;
 	bitstr_t *save_avail_node_bitmap;
 	part_record_t **sched_part_ptr = NULL;
@@ -3937,7 +3937,7 @@ next_part:
 
 	if (rc == SLURM_SUCCESS) {
 		int test_fini = -1;
-		uint8_t save_share_res, save_whole_node;
+		uint8_t save_share_res = 0, save_whole_node = 0;
 		/* On BlueGene systems don't adjust the min/max node limits
 		   here.  We are working on midplane values. */
 		min_nodes = MAX(job_ptr->details->min_nodes,

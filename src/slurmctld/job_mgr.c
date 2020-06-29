@@ -5363,7 +5363,7 @@ extern int job_str_signal(char *job_id_str, uint16_t signal, uint16_t flags,
 	long int long_id;
 	bitstr_t *array_bitmap = NULL;
 	bool valid = true;
-	int32_t i, i_first, i_last;
+	int32_t i, i_first, i_last = 0;
 	int rc = SLURM_SUCCESS, rc2, len;
 
 	if (max_array_size == NO_VAL) {
@@ -13629,7 +13629,7 @@ extern int update_job_str(slurm_msg_t *msg, uid_t uid)
 	uint32_t job_id = 0, het_job_offset;
 	bitstr_t *array_bitmap = NULL, *tmp_bitmap;
 	bool valid = true;
-	int32_t i, i_first, i_last;
+	int32_t i, i_first, i_last = 0;
 	int len, rc = SLURM_SUCCESS, rc2;
 	char *end_ptr, *tok, *tmp = NULL;
 	char *job_id_str;

@@ -343,7 +343,7 @@ _log_init(char *prog, log_options_t opt, log_facility_t fac, char *logfile )
 	if (logfile && (log->opt.logfile_level > LOG_LEVEL_QUIET)) {
 		int mode = O_CREAT | O_WRONLY | O_APPEND | O_CLOEXEC;
 		int fd;
-		FILE *fp;
+		FILE *fp = NULL;
 
 		fd = open(logfile, mode, S_IRUSR | S_IWUSR);
 		if (fd >= 0)
@@ -434,7 +434,7 @@ _sched_log_init(char *prog, log_options_t opt, log_facility_t fac,
 	if (logfile) {
 		int mode = O_CREAT | O_WRONLY | O_APPEND | O_CLOEXEC;
 		int fd;
-		FILE *fp;
+		FILE *fp = NULL;
 
 		fd = open(logfile, mode, S_IRUSR | S_IWUSR);
 		if (fd >= 0)
