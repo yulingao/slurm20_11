@@ -121,16 +121,23 @@ from <b>slurmdbd</b>:</p>
 
 <p>When a user starts a job using <b>srun</b> there has to be a communication
 path from the machine where <b>srun</b> is called to the node(s) the job is
-allocated. First, <b>srun</b> contacts <b>slurmctld</b> to get an allocation.
-Then <b>srun</b> opens sockets (see SrunPortRange) on the machine for I/O and
-establishes a connection to <b>slurmd</b> on the primary node, which establishes
-connections to other nodes as required by the job. Instances of
-<b>slurmstepd</b> are created as required by the job.</p>
+allocated. Communication follows the sequence outlined below:</p>
 
-<p>At completion, <b>slurmstepd</b> will notify <b>srun</b> that it has
-completed, which will then notify <b>slurmctld</b> that the job has finished.
-Then <b>slurmctld</b> will verify the termination of all processes via
-<b>slurmd</b> and release the resources for the next job.</p>
+<dl>
+    <dd>1a. srun sends job allocation request to slurmctld
+    <dd>1b. slurmctld grants allocation and returns details
+    <dd>2a. srun sends step create request to slurmctld
+    <dd>2b. slurmctld responds with step credential
+    <dd>3.  srun opens sockets for I/O
+    <dd>4.  srun forwards credential with task info to slurmd
+    <dd>5.  slurmd forwards request as needed (per fanout)
+    <dd>6.  slurmd forks/execs slurmstepd
+    <dd>7.  slurmstepd connects I/O and launches tasks
+    <dd>8.  On task termination, slurmstepd notifies srun
+    <dd>9.  srun notifies slurmctld of job termination
+    <dd>10. slurmctld verifies termination of all processes via slurmd and
+            releases resources for next job
+</dl>
 
 <div class="figure">
   <img src="network_srun.gif" width="550"><br>
