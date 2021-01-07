@@ -437,6 +437,7 @@ extern void print_fields(type_t type, void *object)
 	while ((field = list_next(print_fields_itr))) {
 		char *tmp_char = NULL, id[FORMAT_STRING_SIZE];
 		int exit_code, tmp_int = NO_VAL, tmp_int2 = NO_VAL;
+		time_t tmp_time = 0;
 		double tmp_dub = (double)NO_VAL; /* don't use NO_VAL64
 						    unless we can
 						    confirm the values
@@ -896,38 +897,38 @@ extern void print_fields(type_t type, void *object)
 		case PRINT_ELIGIBLE:
 			switch(type) {
 			case JOB:
-				tmp_int = job->eligible;
+				tmp_time = job->eligible;
 				break;
 			case JOBSTEP:
-				tmp_int = step->start;
+				tmp_time = step->start;
 				break;
 			case JOBCOMP:
-				tmp_int = parse_time(job_comp->eligible_time, 1);
+				tmp_time = parse_time(job_comp->eligible_time, 1);
 				break;
 			default:
 				break;
 			}
 			field->print_routine(field,
-					     tmp_int,
+					     tmp_time,
 					     (curr_inx == field_count));
 			break;
 		case PRINT_END:
 			switch(type) {
 			case JOB:
-				tmp_int = job->end;
+				tmp_time = job->end;
 				break;
 			case JOBSTEP:
-				tmp_int = step->end;
+				tmp_time = step->end;
 				break;
 			case JOBCOMP:
-				tmp_int = parse_time(job_comp->end_time, 1);
+				tmp_time = parse_time(job_comp->end_time, 1);
 				break;
 			default:
-				tmp_int = NO_VAL;
+				tmp_time = NO_VAL;
 				break;
 			}
 			field->print_routine(field,
-					     tmp_int,
+					     tmp_time,
 					     (curr_inx == field_count));
 			break;
 		case PRINT_EXITCODE:
@@ -2106,20 +2107,20 @@ extern void print_fields(type_t type, void *object)
 		case PRINT_START:
 			switch(type) {
 			case JOB:
-				tmp_int = job->start;
+				tmp_time = job->start;
 				break;
 			case JOBSTEP:
-				tmp_int = step->start;
+				tmp_time = step->start;
 				break;
 			case JOBCOMP:
-				tmp_int = parse_time(job_comp->start_time, 1);
+				tmp_time = parse_time(job_comp->start_time, 1);
 				break;
 			default:
 
 				break;
 			}
 			field->print_routine(field,
-					     tmp_int,
+					     tmp_time,
 					     (curr_inx == field_count));
 			break;
 		case PRINT_STATE:
@@ -2162,20 +2163,20 @@ extern void print_fields(type_t type, void *object)
 		case PRINT_SUBMIT:
 			switch(type) {
 			case JOB:
-				tmp_int = job->submit;
+				tmp_time = job->submit;
 				break;
 			case JOBSTEP:
-				tmp_int = step->start;
+				tmp_time = step->start;
 				break;
 			case JOBCOMP:
-				tmp_int = parse_time(job_comp->start_time, 1);
+				tmp_time = parse_time(job_comp->start_time, 1);
 				break;
 			default:
 
 				break;
 			}
 			field->print_routine(field,
-					     tmp_int,
+					     tmp_time,
 					     (curr_inx == field_count));
 			break;
 		case PRINT_SUSPENDED:
