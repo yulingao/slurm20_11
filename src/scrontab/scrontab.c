@@ -60,8 +60,13 @@ decl_static_data(usage_txt);
 
 static uid_t uid;
 static gid_t gid;
+static bool edit_only = false;
+static bool first_form = false;
 static bool list_only = false;
 static bool remove_only = false;
+
+/* Name of input file. May be "-". */
+static const char *infile = NULL;
 
 scron_opt_t scopt;
 slurm_opt_t opt = {
@@ -91,6 +96,7 @@ static void _parse_args(int argc, char **argv)
 	while ((c = getopt(argc, argv, "elru:v")) != -1) {
 		switch (c) {
 		case 'e':
+			edit_only = true;
 			break;
 		case 'l':
 			list_only = true;
@@ -112,6 +118,25 @@ static void _parse_args(int argc, char **argv)
 			exit(1);
 		}
 	}
+
+	if (edit_only || list_only || remove_only) {
+		if (optind < argc) {
+			_usage();
+			exit(1);
+		}
+		return;
+	}
+
+	if ((argc - optind) > 1) {
+		_usage();
+		exit(1);
+	}
+
+	first_form = true;
+	if (optind < argc)
+		infile = argv[optind];
+	else
+		infile = "-";
 }
 
 static void _update_crontab_with_disabled_lines(char **crontab,
@@ -285,7 +310,8 @@ static void _edit_and_update_crontab(char *crontab)
 	crontab_update_response_msg_t *response;
 
 edit:
-	_edit_crontab(&crontab);
+	if (edit_only)
+		_edit_crontab(&crontab);
 
 	jobs = list_create((ListDelF) slurm_free_job_desc_msg);
 	lines = convert_file_to_line_array(xstrdup(crontab), &line_count);
@@ -361,6 +387,14 @@ edit:
 	xfree(script);
 
 	if (badline) {
+		if (first_form) {
+			printf("There are errors in your crontab.\n");
+			xfree(badline);
+			xfree(crontab);
+			list_destroy(jobs);
+			exit(1);
+		}
+
 		char c = '\0';
 
 		list_destroy(jobs);
@@ -385,6 +419,19 @@ edit:
 	response = slurm_update_crontab(uid, gid, crontab, jobs);
 
 	if (response->return_code) {
+		if (first_form) {
+			printf("There was an issue with the job submission on lines %s\n"
+				"The error code return was: %s\n"
+				"The error message was: %s\n",
+				response->failed_lines,
+				slurm_strerror(response->return_code),
+				response->err_msg);
+			slurm_free_crontab_update_response_msg(response);
+			xfree(crontab);
+			list_destroy(jobs);
+			exit(1);
+		}
+
 		char c = '\0';
 		list_destroy(jobs);
 		while (tolower(c) != 'y' && tolower(c) != 'n') {
@@ -417,6 +464,27 @@ edit:
 	list_destroy(jobs);
 }
 
+static void _handle_first_form(char **new_crontab)
+{
+	int input_desc;
+
+	if (!infile)
+		fatal("invalid input file");
+
+	if (!xstrcmp(infile, "-")) {
+		input_desc = STDIN_FILENO;
+		*new_crontab = _read_fd(input_desc);
+	} else {
+		input_desc = open(infile, O_RDONLY);
+		if (input_desc < 0)
+			fatal("failed to open %s", infile);
+		*new_crontab = _read_fd(input_desc);
+		if (close(input_desc))
+			fatal("failed to close fd %d", input_desc);
+	}
+}
+
+
 extern int main(int argc, char **argv)
 {
 	int rc;
@@ -428,6 +496,9 @@ extern int main(int argc, char **argv)
 	if (!xstrcasestr(slurm_conf.scron_params, "enable"))
 		fatal("scrontab is disabled on this cluster");
 
+	if (first_form)
+		_handle_first_form(&crontab);
+
 	if (remove_only) {
 		if ((rc = slurm_remove_crontab(uid, gid)))
 			fatal("slurm_remove_crontab failed: %s",
@@ -435,15 +506,18 @@ extern int main(int argc, char **argv)
 		exit(0);
 	}
 
-	if ((rc = slurm_request_crontab(uid, &crontab, &disabled_lines)) &&
-	    (rc != ESLURM_JOB_SCRIPT_MISSING)) {
-		fatal("slurm_request_crontab failed: %s",
-		      slurm_strerror(rc));
-	}
+	if (edit_only || list_only) {
+		if ((rc = slurm_request_crontab(uid, &crontab,
+						&disabled_lines)) &&
+		    (rc != ESLURM_JOB_SCRIPT_MISSING)) {
+			fatal("slurm_request_crontab failed: %s",
+			      slurm_strerror(rc));
+		}
 
-	_update_crontab_with_disabled_lines(&crontab, disabled_lines,
-					    "#DISABLED: ");
-	xfree(disabled_lines);
+		_update_crontab_with_disabled_lines(&crontab, disabled_lines,
+						    "#DISABLED: ");
+		xfree(disabled_lines);
+	}
 
 	if (list_only) {
 		if (!crontab) {
