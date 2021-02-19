@@ -903,7 +903,8 @@ extern void print_fields(type_t type, void *object)
 				tmp_time = step->start;
 				break;
 			case JOBCOMP:
-				tmp_time = parse_time(job_comp->eligible_time, 1);
+				tmp_time = parse_time(job_comp->eligible_time,
+						      1);
 				break;
 			default:
 				break;
