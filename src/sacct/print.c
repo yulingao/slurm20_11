@@ -370,8 +370,8 @@ extern void print_fields(type_t type, void *object)
 	jobcomp_job_rec_t *job_comp = (jobcomp_job_rec_t *)object;
 	struct passwd *pw = NULL;
 	struct	group *gr = NULL;
-	int cpu_tres_rec_count = 0;
-	int step_cpu_tres_rec_count = 0;
+	unit64_t cpu_tres_rec_count = 0;
+	uint64_t step_cpu_tres_rec_count = 0;
 	char tmp1[128];
 	char *nodes = NULL;
 
@@ -426,10 +426,10 @@ extern void print_fields(type_t type, void *object)
 		break;
 	}
 
-	if ((uint64_t)cpu_tres_rec_count == INFINITE64)
+	if (cpu_tres_rec_count == INFINITE64)
 		cpu_tres_rec_count = 0;
 
-	if ((uint64_t)step_cpu_tres_rec_count == INFINITE64)
+	if (step_cpu_tres_rec_count == INFINITE64)
 		step_cpu_tres_rec_count = 0;
 
 	curr_inx = 1;
@@ -452,21 +452,21 @@ extern void print_fields(type_t type, void *object)
 		case PRINT_ALLOC_CPUS:
 			switch(type) {
 			case JOB:
-				tmp_int = cpu_tres_rec_count;
+				tmp_uint64 = cpu_tres_rec_count;
 
 				// we want to use the step info
 				if (!step)
 					break;
 			case JOBSTEP:
-				tmp_int = step_cpu_tres_rec_count;
+				tmp_uint64 = step_cpu_tres_rec_count;
 				break;
 			case JOBCOMP:
 			default:
-				tmp_int = job_comp->proc_cnt;
+				tmp_uint64 = job_comp->proc_cnt;
 				break;
 			}
 			field->print_routine(field,
-					     tmp_int,
+					     tmp_uint64,
 					     (curr_inx == field_count));
 			break;
 		case PRINT_ALLOC_NODES:
@@ -1710,12 +1710,12 @@ extern void print_fields(type_t type, void *object)
 			switch(type) {
 			case JOB:
 				if (!job->track_steps && !step)
-					tmp_uint32 = cpu_tres_rec_count;
+					tmp_uint64 = cpu_tres_rec_count;
 				// we want to use the step info
 				if (!step)
 					break;
 			case JOBSTEP:
-				tmp_uint32 = step->ntasks;
+				tmp_uint64 = step->ntasks;
 				break;
 			case JOBCOMP:
 			default:
@@ -1723,7 +1723,7 @@ extern void print_fields(type_t type, void *object)
 				break;
 			}
 			field->print_routine(field,
-					     tmp_uint32,
+					     tmp_uint64,
 					     (curr_inx == field_count));
 			break;
 		case PRINT_PRIO:
@@ -1889,10 +1889,10 @@ extern void print_fields(type_t type, void *object)
 		case PRINT_REQ_CPUS:
 			switch(type) {
 			case JOB:
-				tmp_uint32 = job->req_cpus;
+				tmp_uint64 = job->req_cpus;
 				break;
 			case JOBSTEP:
-				tmp_uint32 = step_cpu_tres_rec_count;
+				tmp_uint64 = step_cpu_tres_rec_count;
 				break;
 			case JOBCOMP:
 
@@ -1902,7 +1902,7 @@ extern void print_fields(type_t type, void *object)
 				break;
 			}
 			field->print_routine(field,
-					     tmp_uint32,
+					     tmp_uint64,
 					     (curr_inx == field_count));
 			break;
 		case PRINT_REQ_MEM:
