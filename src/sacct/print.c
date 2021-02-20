@@ -445,7 +445,6 @@ extern void print_fields(type_t type, void *object)
 						    NO_VAL64 */
 		uint32_t tmp_uint32 = NO_VAL, tmp2_uint32 = NO_VAL;
 		uint64_t tmp_uint64 = NO_VAL64, tmp2_uint64 = NO_VAL64;
-;
 
 		memset(&outbuf, 0, sizeof(outbuf));
 		switch (field->type) {
