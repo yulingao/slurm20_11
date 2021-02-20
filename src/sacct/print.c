@@ -2346,6 +2346,7 @@ extern void print_fields(type_t type, void *object)
 			case JOB:
 				if (params.use_local_uid && job->user &&
 				    (pw = getpwnam(job->user)))
+					/* unless pw->pw_uid can bet -1? */
 					tmp_uint32 = pw->pw_uid;
 				else
 					tmp_uint32 = job->uid;
