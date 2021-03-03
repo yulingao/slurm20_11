@@ -1846,13 +1846,13 @@ static void _mail_free(void *arg)
 	}
 }
 
+/*
+ * Initializes MailProg environment and sets main part of variables, however
+ * additional variables are set in _set_job_time and _set_job_term_info to avoid
+ * code duplication.
+ */
 static char **_build_mail_env(job_record_t *job_ptr, uint32_t mail_type)
 {
-	/*
-	 * This function initializes MailProg environment and sets main part of
-	 * variables, however additional variables are set in _set_job_time
-	 * and _set_job_term_info to avoid code duplication
-	 */
 	int exit_code, signal;
 	char buf[32], *eq, *name, **my_env = xcalloc(2, sizeof(char *));
 
